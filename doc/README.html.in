@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="iso-8895-15"?> <!-- -*-html-helper-*- -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>pam_dotfile @PACKAGE_VERSION@</title>
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+<h1><a name="top">pam_dotfile @PACKAGE_VERSION@</a></h1>
+
+<p><i>Copyright 2002,2003 Lennart Poettering &lt;mzcnzqbgsvyr [at] itaparica.org&gt;</i></p>
+
+<ul class="toc">
+    <li><a href="#license">License</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#status">Status</a></li>
+    <li><a href="#documentation">Documentation</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#acks">Acknowledgements</a></li>
+    <li><a href="#download">Download</a></li>
+</ul>
+
+<h2><a name="license">License</a></h2>
+
+<p>This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
+
+<h2><a name="news">News</a></h2>
+
+<div class="news-date">Mon July 21 2003: </div> <p
+class="news-text"><a
+href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/pam_dotfile-0.6.tar.gz">Version
+0.6</a> released, changes include: Fix MD5 digest generation. This
+breaks compatibility with <tt>pam_dotfile</tt> <= 0.5 unless
+<tt>--enable-compat05</tt> is specified at compile time. Minor other
+fixes (mostly related to the build system). <b>All users should update.</b></p>
+
+<div class="news-date">Tue July 8 2003: </div> <p class="news-text"><a
+href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/pam_dotfile-0.5.tar.gz">Version
+0.5</a> released, changes include: Autoconf support, fixed an important bug regarding a race on child process creation. <b>All users should update.</b></p>
+
+<h2><a name="overview">Overview</a></h2>
+
+<p><tt>pam_dotfile</tt>is a PAM module which allows users to have more
+than one password for a single account, each for a different
+service. This is desirable because many users have objections to using
+the same password for (as an example) an IMAP4 mailbox and SSH
+access. The IMAP4 password should be distinct from the SSH password
+because the user wants to save the former in the configuration of his
+mail agent, but not the latter. The same applies to POP3 mailboxes,
+FTP and comparable services.</p>
+
+<h2><a name="status">Status</a></h2>
+
+<p>Version @PACKAGE_VERSION@ is stable and feature complete.</p>
+  
+<h2><a name="documentation">Documentation</a></h2>
+
+<h3>How does it work?</h3>
+
+<p>The module needs be activated for the specific service in the
+configuration file <tt>/etc/pam.d/&lt;service&gt;</tt>. The user is
+than able to create a second valid password for that service by
+issuing the following commands:</p>
+
+<pre>
+pam-dotfile-gen -a &lt;service&gt;
+</pre>
+
+<p>Replace <tt>&lt;service&gt;</tt> by the PAM service name, e.g. <tt>imapd</tt>. The user has to enter the new password twice. This will save the
+password to <tt>~/.pam-&lt;service&gt;</tt> in a hashed way.</p>
+
+<p>A complete example for the service <tt>imap</tt> (for the IMAP server dovecot in this
+case):</p>
+
+<p><tt>/etc/pam.d/imap</tt>:</p>
+
+<pre>
+#%PAM-1.0
+auth sufficient pam_unix_auth.so
+auth sufficient pam_dotfile.so use_first_pass no_warn
+auth required pam_deny.so
+</pre>
+
+<p>As user <tt>waldo</tt>:</p>
+
+<pre>
+[waldo@wonder] ~$ pam-dotfile-gen -a imap
+Password:quux
+Please repeat; password:quux
+Password added.
+</pre>
+
+<p>That's it. User <tt>waldo</tt> may now access his IMAP mail store either by
+using his unix password or by using <i>quux</i>.</p>
+
+<p>If you want to deny access with the unix password when a <tt>.pam</tt> file
+exists, you should install the following <tt>/etc/pam.d/imap</tt>:</p>
+
+<pre>
+#%PAM-1.0
+auth [success=done new_authtok_reqd=done authinfo_unavail=ignore default=die] pam_dotfile.so no_warn
+auth [success=done new_authtok_reqd=done default=die] pam_unix.so use_first_pass
+</pre>
+
+<p>Please note: the <tt>pam.d</tt> fragments shown above are based on Debian
+GNU/Linux' default PAM installation. I know that some distributions
+(i.e. Red Hat) use <tt>pam_pwdb.so</tt> instead of <tt>pam_unix.so</tt> as default
+authentication mechanism. Please adapt the <tt>pam.d</tt> configuration to your
+specific distribution.</p>
+
+<h3>Notes</h3>
+
+<p>For getting access to the user's files a SUID root helper utility
+<tt>/sbin/pam-dotfile-helper</tt> is used.</p>
+
+<p>The <tt>.pam</tt> files are ignored when their access mode AND 077 is non-zero,
+when they are symlinks or when any parent directory is group or world
+writable.</p>
+
+<p><tt>pam_dotfile</tt> will try to open the the following files for
+authentication (in that order):</p>
+
+<ol>
+  <li><tt>~/.pam-&lt;service&gt;</tt></li>
+  <li><tt>~/.pam/&lt;service&gt;</tt></li>
+  <li><tt>~/.pam-other</tt></li>
+  <li><tt>~/.pam/other</tt></li>
+</ol>
+
+<p>The first file in this list that exists is used for
+authentication. Regardless of any of the passwords contained therein
+are correct the other files are NOT evaluated.</p>
+
+<p>The hashing is implemented in the following way:</p>
+
+<ol>
+  <li>A 16 byte random string is read from <tt>/dev/urandom</tt> (salt)</li>
+  <li>It is formatted in a 32 character hexadecimal string</li>
+  <li>The password is appended</li>
+  <li>The MD5 hash of this string is calculated</li>
+  <li>The hash is formatted in another 32 character hexadecimal string</li>
+  <li>The result is the concatenation of the two hexadecimal strings</li>
+</ol>
+
+<p>I believe that this is somewhat secure. However, I am not a
+cryptoanalyst, I cannot guarantee for this. (Probably a cryptoanalyst
+cannot either.)</p>
+
+<p>The hashing function changed a little from 0.5 to 0.6. There was an
+ugly error in formatting the digest into a hexadecimal string. By fixing
+this the old hashed passwords became incompatible with newer releases
+of <tt>pam_dotfile</tt>. For sake of compatibility I added the option
+<tt>--enable-compat05</tt> to the <tt>configure</tt> script. Passwords
+for 0.6 are prefixed with a <tt>+</tt> in the dot files, older
+passwords are not. You are encouraged to fix your passwords to comply
+with the new version.</p>
+
+<p><tt>pam-dotfile-gen</tt> may be used as a filter that reads a text stream
+with unencrypted passwords and crypts them. Empty lines and those
+starting with # are passed in an unmodified way to STDOUT. Thus the
+user may comment the passwords in his <tt>.pam</tt> files.</p>
+
+<h3>PAM parameters</h3>
+
+<ul>
+  
+  <li><tt>debug</tt> - Be very verbose to <tt>syslog(3)</tt></li>
+  
+  <li><tt>use_first_pass</tt> - Don't issue a password prompt, use one
+  supplied by a previous modules</li>
+
+  <li><tt>try_first_pass</tt> - Nearly the same as <tt>use_first_pass</tt>, but don't
+  fail if no password was supplied, instead query the user</li>
+  
+  <li><tt>use_authtok</tt> - Synonym for <tt>use_first_pass</tt></li>
+  
+  <li><tt>rootok</tt> - Don't deny access for users with <tt>uid == 0</tt></li>
+  
+  <li><tt>nullok</tt> - Don't deny access for null passwords</li>
+  
+  <li><tt>fork</tt> - Always fork before trying to open the password files via the helper tool</li>
+  
+  <li><tt>nofork</tt> - Never fork</li>
+  
+  <li><tt>no_warn</tt> - Suppress warnings to <tt>syslog(3)</tt></li>
+  
+  <li><tt>stat_only_home</tt> - verifies group/world readability only inside the home directory.
+  e.g. if the configuration file is <tt>/home/waldo/.pam/service</tt>
+  only <tt>/home/waldo/.pam</tt> and <tt>/home/waldo</tt> are tested.
+  This is sometimes necessary if the home directories are symbolic links.</li>
+
+  <li><tt>nocompat05</tt> - Disable compatibility with <tt>pam_dotfile</tt> <= 0.5. This is only available if <tt>pam_dotfile</tt> was compiled with <tt>--enable-compat05</tt></li>
+</ul>
+
+
+<h2><a name="requirements">Requirements</a></h2>
+
+<p><tt>pam_dotfile</tt> was developed and tested on Debian GNU/Linux
+"testing" from July 2003, it should work on most other Linux
+distributions (and maybe Unix versions) since it uses GNU autoconf and
+GNU libtool for source code configuration and shared library
+management.</p>
+
+<p>You need the PAM development headers installed (naturally...)</p>
+
+<h2><a name="installation">Installation</a></h2>
+
+<p>As this package is made with the GNU autotools you should run
+<tt>./configure</tt> inside the distribution directory for configuring
+the source tree. After that you should run <tt>make</tt> for
+compilation and <tt>make install</tt> (as root) for installation of
+<tt>pam_dotfile</tt>.</p>
+
+<p>If you upgrade from versions prior to 0.6 you should pass
+<tt>--enable-compat05</tt> to <tt>configure</tt> to enable
+compatibility with old user dot files. If you do not specify this, old
+passwords are ignored, the users have to recreate their passwords with
+<tt>pam-dotfile-gen</tt>.</p>
+
+<p>If you do a fresh install you should not pass
+<tt>--enable-compat05</tt> to <tt>configure</tt>. (An alternative is
+to specify <tt>--enable-compat05</tt> but to disable it afterwards by
+using <tt>nocompat05</tt> on the pam configuration line.)</p>
+
+<h2><a name="acks">Acknowledgements</a></h2>
+
+<p>This software includes an implementation of the MD5 algorithm by
+L. Peter Deutsch. Thanks to him for this.</p>
+
+<p>Oliver Kurth for packaging <tt>pam_dotfile</tt> for Debian</p>
+
+<p>Christian Loitsch provided a patch with some bugfixes and support
+for <tt>stat_only_home</tt></p>
+
+<h2><a name="download">Download</a></h2>
+
+<p>The newest release is always available from <a href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/">http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/</a></p>
+
+<p>The current release is <a href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/pam_dotfile-@PACKAGE_VERSION@.tar.gz">@PACKAGE_VERSION@</a></p>
+
+<p>You may find a mostly up to date Debian package of <tt>pam_dotfile</tt> on the <a href="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=libpam-dotfile&amp;searchon=names&amp;subword=1&amp;version=all&amp;release=all">Debian package repository</a>.</p>
+
+<hr/>
+
+<address>Lennart Poettering &lt;mzcnzqbgsvyr [at] itaparica.org&gt;, July 2003</address>
+<div><i>$Id$</i></div>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE spec SYSTEM "man.dtd">
+
+<!--
+  This file is part of pam_dotfile.
+
+  pam_dotfile is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  
+  pam_dotfile is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with pam_dotfile; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA
+-->
+
+  <manpage name="pam-dotfile-helper" section="8" desc="check password for libpam-dotfile">
+    
+    <synopsis>
+      &lt;not invoked manually&gt;
+    </synopsis>
+	
+    <description>
+      <p>
+	A  helper  binary  for the pam_dotfile module, pam-dotfile-helper, is provided to
+	check the user's password. This binary is very simple and
+	will only check the password of the user  invoking  it.  It  is  called
+	transparently  on behalf of the user by the authenticating component of
+	the pam_dotfile module. In this way it is possible for  applications
+	to work without being setuid root.
+      </p>
+    </description>
+	
+    <section name="usage">
+      <p>
+	This  program  is  not intended to be called directly by users and will
+	log to syslog if it is called improperly (i.e., by  someone  trying  to
+	exploit it).
+      </p>
+    </section>
+	
+    <section name="Author">
+      <p>pam-dotfile was written by Lennart Poettering
+	&lt;@PACKAGE_BUGREPORT@&gt;. pam-dotfile is available
+	at <url
+	  href="http://www.stud.uni-hamburg.de/users/lennart/projects/pam_dotfile/"/>
+      </p>
+    </section>
+	
+    <section name="Comments">
+      <p>This man page was written using <manref name="xmltoman" section="1"
+	  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
+    
+  </manpage>

@@ -1,0 +1,89 @@
+<?xml version="1.0" standalone='no'?>
+<!-- <!DOCTYPE spec SYSTEM "man.dtd"> -->
+
+<!--
+  This file is part of pam_dotfile.
+
+  pam_dotfile is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  
+  pam_dotfile is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with pam_dotfile; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+  USA
+-->
+  <manpage name="pam-dotfile-gen" section="1" desc="change password for libpam-dotfile">
+    
+    <synopsis>
+      <cmd>pam-dotfile-gen &gt;&gt; ~/.pam-<arg>service</arg></cmd>
+      <cmd>pam-dotfile-gen -a <arg>service</arg></cmd>
+    </synopsis>
+	
+    <description>
+
+      <p>pam-dotfile-gen is a utility to create a password for a
+	  particular service, if your system administrator has set up
+	  authenication for that service with libpam-dotfile.</p>
+
+      <p>To create or change your password, just enter pam-dotfile-gen
+      -a &lt;service&gt; and you will be prompted for the
+      password. The password will be written to ~/.pam-&lt;service&gt;
+      in a hashed format. To add another password to the same service
+      repeat the command.</p>
+
+      <p>If called without any argument the tool will act as
+      filter. Unencrypted passwords are read from STDIN, are crypted
+      and written to STDOUT. The passwords are separated by
+      newlines. Empty lines and lines beginning with # are ignored and
+      written in an untouched way to STDOUT.</p>
+
+      <p>The file format of the ~/.pam is rather simple. Every
+      non-empty line which does not begin with # is compared with the
+      hashed password to be checked. This allows you to specify free
+      form comments for each password with a simple text editor.</p>
+    </description>
+	
+    <options>
+
+	  <option>
+		<p><opt>-a <arg>service</arg></opt></p>
+		<optdesc><p>
+			Instead of acting as a filter read a single password from the user and add it to the .pam-file for the specified service.
+		  </p></optdesc>
+      </option>
+
+      <option>
+        <p><opt>-C</opt></p>
+
+        <optdesc><p> Enable compatibility with pam_dotfile older than
+        0.6. Passwords hashed with this enabled are created in a form
+        compatible with older release. You shouldn't use this.
+        </p></optdesc>
+
+	  </option>
+
+      <option>
+        <p><opt>-h</opt></p>
+
+        <optdesc><p>Show a terse usage summary.</p></optdesc></option>
+    </options>
+	
+    <section name="Author">
+      <p>pam-dotfile was written by Lennart Poettering
+	&lt;@PACKAGE_BUGREPORT@&gt;. pam-dotfile is available
+	at <url href="http://www.stud.uni-hamburg.de/users/lennart/projects/pam_dotfile/"/> </p>
+    </section>
+	
+    <section name="Comments">
+      <p>This man page was written using <manref name="xmltoman" section="1"
+	  href="http://masqmail.cx/xml2man/"/> by Oliver Kurth.</p>
+    </section>
+    
+  </manpage>
