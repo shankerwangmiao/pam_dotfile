@@ -44,7 +44,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <div class="news-date">Mon Aug 25 2003: </div> <p class="news-text"><a
 href="@PACKAGE_URL@pam_dotfile-0.7.tar.gz">Version
-0.7</a> released, changes include: Fixed in conjunction with <tt>exim4</tt>, contact info updated, build system update</p>
+0.7</a> released, changes include: Fixed in conjunction with <tt>exim4</tt>, contact info updated, build system update, <tt>man</tt> page for <tt>pamtest</tt> added</p>
 
 <div class="news-date">Mon July 21 2003: </div> <p
 class="news-text"><a
