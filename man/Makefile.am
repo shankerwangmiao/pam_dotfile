@@ -16,9 +16,9 @@
 # along with pam_dotfile; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
-man_MANS = pam-dotfile-gen.1 pam-dotfile-helper.8
+man_MANS = pam-dotfile-gen.1 pam-dotfile-helper.8 pamtest.1
 
-EXTRA_DIST = $(man_MANS) pam-dotfile-helper.8.xml.in pam-dotfile-gen.1.xml.in
+EXTRA_DIST = $(man_MANS) pam-dotfile-helper.8.xml.in pam-dotfile-gen.1.xml.in pamtest.1.xml.in
 
 if USE_XMLTOMAN
 
@@ -28,6 +28,9 @@ pam-dotfile-gen.1: pam-dotfile-gen.1.xml.in Makefile
 	sed -e 's,@sysconfdir\@,$(sysconfdir),g' -e 's,@sbindir\@,$(sbindir),g' -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' -e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' $< | xmltoman - > $@
 
 pam-dotfile-helper.8: pam-dotfile-helper.8.xml.in Makefile
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' -e 's,@sbindir\@,$(sbindir),g' -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' --e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' $< | xmltoman - > $@
+
+pamtest.1: pamtest.1.xml.in Makefile
 	sed -e 's,@sysconfdir\@,$(sysconfdir),g' -e 's,@sbindir\@,$(sbindir),g' -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' --e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' $< | xmltoman - > $@
 
 endif
