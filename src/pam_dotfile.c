@@ -90,6 +90,8 @@ static int _fork_authentication(context_t *c, const char *username, const char *
         };
         char * envp[] = { NULL };
 
+	close(p[1]);
+	
         if (p[0] != 0 && dup2(p[0], 0) != 0) {
             logmsg(c, LOG_ERR, "dup2(): %s", strerror(errno));
             exit(2);
@@ -97,8 +99,9 @@ static int _fork_authentication(context_t *c, const char *username, const char *
         
 	close(1);
         close(2);
-	close(p[0]);
-	close(p[1]);
+
+	if (p[0] != 0)
+	    close(p[0]);
 
         if (open("/dev/null", O_WRONLY) != 1) {
             logmsg(c, LOG_ERR, "open(\"/dev/null\", O_WRONLY): %s", strerror(errno));
