@@ -146,7 +146,7 @@ static int _fork_authentication(context_t *c, const char *username, const char *
                     case 3: r = PAM_USER_UNKNOWN; break;
                 }
             } else
-                logmsg(c, LOG_DEBUG, "Helper failed abnormally");
+                logmsg(c, LOG_ERR, "Helper failed abnormally");
         }
     }
 
