@@ -48,8 +48,7 @@
     <section name="Author">
       <p>pam-dotfile was written by Lennart Poettering
 	&lt;@PACKAGE_BUGREPORT@&gt;. pam-dotfile is available
-	at <url
-	  href="http://www.stud.uni-hamburg.de/users/lennart/projects/pam_dotfile/"/>
+	at <url href="@PACKAGE_URL@"/>
       </p>
     </section>
 	

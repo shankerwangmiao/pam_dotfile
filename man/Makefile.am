@@ -25,9 +25,9 @@ if USE_XMLTOMAN
 CLEANFILES = $(man_MANS)
 
 pam-dotfile-gen.1: pam-dotfile-gen.1.xml.in Makefile
-	sed -e 's,@sysconfdir\@,$(sysconfdir),g' -e 's,@sbindir\@,$(sbindir),g' -e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' $< | xmltoman - > $@
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' -e 's,@sbindir\@,$(sbindir),g' -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' -e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' $< | xmltoman - > $@
 
 pam-dotfile-helper.8: pam-dotfile-helper.8.xml.in Makefile
-	sed -e 's,@sysconfdir\@,$(sysconfdir),g' -e 's,@sbindir\@,$(sbindir),g' -e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' $< | xmltoman - > $@
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' -e 's,@sbindir\@,$(sbindir),g' -e 's,@PACKAGE_URL\@,$(PACKAGE_URL),g' --e 's,@PACKAGE_BUGREPORT\@,$(PACKAGE_BUGREPORT),g' $< | xmltoman - > $@
 
 endif

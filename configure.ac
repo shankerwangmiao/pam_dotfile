@@ -20,11 +20,10 @@
 # Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
 AC_PREREQ(2.57)
-AC_INIT([pam_dotfile], [0.6], [mzcnzqbgsvyr@itaparica.org])
+AC_INIT([pam_dotfile], [0.7beta], [mzcnzqbgsvyr (at) 0pointer (dot) de])
 AC_CONFIG_SRCDIR([src/pam_dotfile.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wall])
-AM_MAINTAINER_MODE
 
 AM_DISABLE_STATIC
 
@@ -37,6 +36,8 @@ AC_PROG_CXX
 if test "x$GCC" = "xyes" ; then
    CFLAGS="$CFLAGS -pipe -Wall"
 fi
+
+AC_SUBST(PACKAGE_URL, [http://0pointer.de/lennart/projects/pam_dotfile/])
 
 CFLAGS="$CFLAGS -L/lib"
 

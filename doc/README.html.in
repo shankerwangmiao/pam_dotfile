@@ -10,7 +10,7 @@
 <body>
 <h1><a name="top">pam_dotfile @PACKAGE_VERSION@</a></h1>
 
-<p><i>Copyright 2002,2003 Lennart Poettering &lt;mzcnzqbgsvyr [at] itaparica.org&gt;</i></p>
+<p><i>Copyright 2002,2003 Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;</i></p>
 
 <ul class="toc">
     <li><a href="#license">License</a></li>
@@ -42,16 +42,20 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
 
 <h2><a name="news">News</a></h2>
 
+<div class="news-date">Mon Aug 25 2003: </div> <p class="news-text"><a
+href="@PACKAGE_URL@pam_dotfile-0.7.tar.gz">Version
+0.7</a> released, changes include: Fixed in conjunction with <tt>exim4</tt>, contact info updated, build system update</p>
+
 <div class="news-date">Mon July 21 2003: </div> <p
 class="news-text"><a
-href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/pam_dotfile-0.6.tar.gz">Version
+href="@PACKAGE_URL@pam_dotfile-0.6.tar.gz">Version
 0.6</a> released, changes include: Fix MD5 digest generation. This
 breaks compatibility with <tt>pam_dotfile</tt> <= 0.5 unless
 <tt>--enable-compat05</tt> is specified at compile time. Minor other
 fixes (mostly related to the build system). <b>All users should update.</b></p>
 
 <div class="news-date">Tue July 8 2003: </div> <p class="news-text"><a
-href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/pam_dotfile-0.5.tar.gz">Version
+href="@PACKAGE_URL@pam_dotfile-0.5.tar.gz">Version
 0.5</a> released, changes include: Autoconf support, fixed an important bug regarding a race on child process creation. <b>All users should update.</b></p>
 
 <h2><a name="overview">Overview</a></h2>
@@ -250,15 +254,15 @@ for <tt>stat_only_home</tt></p>
 
 <h2><a name="download">Download</a></h2>
 
-<p>The newest release is always available from <a href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/">http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/</a></p>
+<p>The newest release is always available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a></p>
 
-<p>The current release is <a href="http://www.stud.uni-hamburg.de/~lennart/projects/pam_dotfile/pam_dotfile-@PACKAGE_VERSION@.tar.gz">@PACKAGE_VERSION@</a></p>
+<p>The current release is <a href="@PACKAGE_URL@pam_dotfile-@PACKAGE_VERSION@.tar.gz">@PACKAGE_VERSION@</a></p>
 
-<p>You may find a mostly up to date Debian package of <tt>pam_dotfile</tt> on the <a href="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=libpam-dotfile&amp;searchon=names&amp;subword=1&amp;version=all&amp;release=all">Debian package repository</a>.</p>
+<p>You may find a mostly up to date Debian package of <tt>pam_dotfile</tt> on the <a href="http://packages.debian.org/libpam-dotfile">Debian package repository</a>.</p>
 
 <hr/>
 
-<address>Lennart Poettering &lt;mzcnzqbgsvyr [at] itaparica.org&gt;, July 2003</address>
+<address>Lennart Poettering &lt;@PACKAGE_BUGREPORT@&gt;, July 2003</address>
 <div><i>$Id$</i></div>
 
 </body>
