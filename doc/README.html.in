@@ -254,11 +254,11 @@ for <tt>stat_only_home</tt></p>
 
 <h2><a name="download">Download</a></h2>
 
-<p>The newest release is available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a> always.</p>
+<p>The newest release is available from <a href="@PACKAGE_URL@">@PACKAGE_URL@</a>.</p>
 
 <p>The current release is <a href="@PACKAGE_URL@pam_dotfile-@PACKAGE_VERSION@.tar.gz">@PACKAGE_VERSION@</a></p>
 
-<p>You may find a mostly up to date Debian package of <tt>pam_dotfile</tt> on the <a href="http://packages.debian.org/libpam-dotfile">Debian package repository</a>.</p>
+<p>You may find a mostly up to date Debian package of <tt>pam_dotfile</tt> in the <a href="http://packages.debian.org/libpam-dotfile">Debian package repository</a>.</p>
 
 <p>Get <tt>pam_dotfile</tt>'s development sources from the <a href="http://subversion.tigris.org/">Subversion</a> <a href="https://seth.intheinter.net:8081/svn/pam_dotfile/">repository</a>.</p>
 
