@@ -20,7 +20,7 @@
 # Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
 AC_PREREQ(2.57)
-AC_INIT([pam_dotfile], [0.7beta], [mzcnzqbgsvyr (at) 0pointer (dot) de])
+AC_INIT([pam_dotfile], [0.7], [mzcnzqbgsvyr (at) 0pointer (dot) de])
 AC_CONFIG_SRCDIR([src/pam_dotfile.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wall])
