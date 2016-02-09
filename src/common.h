@@ -33,6 +33,8 @@
 #endif
 #ifdef HAVE_SECURITY__PAM_MACROS_H
 #include <security/_pam_macros.h>
+#else
+#define  x_strdup(s)  ( (s) ? strdup(s):NULL )
 #endif
 
 #ifndef PAM_EXTERN
@@ -60,6 +62,5 @@ typedef struct context {
 
 int user_authentication(context_t *c, const char *username, const char *password);
 
-extern char *x_strdup (const char *string);
 
 #endif
