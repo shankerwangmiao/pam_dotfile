@@ -16,7 +16,11 @@
 # along with pam_dotfile; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
-noinst_DATA = README.html README 
+if USE_LYNX
+noinst_DATA = README.html README
+else
+noinst_DATA = README.html
+endif
 EXTRA_DIST = $(noinst_DATA) style.css README.html.in
 
 MAINTAINERCLEANFILES = README README.html

@@ -19,17 +19,17 @@
 # along with pam_dotfile; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
-AC_PREREQ(2.57)
-AC_INIT([pam_dotfile], [0.7], [mzcnzqbgsvyr (at) 0pointer (dot) de])
+AC_PREREQ([2.69])
+AC_INIT([pam_dotfile],[0.7],[mzcnzqbgsvyr (at) 0pointer (dot) de])
 AC_CONFIG_SRCDIR([src/pam_dotfile.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wall])
 
-AM_DISABLE_STATIC
+AC_DISABLE_STATIC([])
 
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_CXX
 
 # If using GCC specifiy some additional parameters
@@ -42,19 +42,47 @@ AC_SUBST(PACKAGE_URL, [http://0pointer.de/lennart/projects/pam_dotfile/])
 CFLAGS="$CFLAGS -L/lib"
 
 # Checks for libraries.
-AC_CHECK_HEADER([security/pam_modules.h],, [AC_MSG_ERROR([*** Sorry, you have to install the PAM development files ***])])
+AC_CHECK_HEADERS([security/pam_appl.h], [],
+  [AC_MSG_ERROR([[PAM header files not found, install libpam-dev.]])])
+AC_CHECK_HEADERS([security/pam_modules.h security/_pam_macros.h security/pam_modutil.h], [], [],
+  [#include <sys/types.h>   #include <security/pam_appl.h>])
 
-LIBS="$LIBS -ldl -lpam -lpam_misc"
 
-case "$host" in
-  *-*-linux*)
-    PAM_MODDIR="/lib/security"
-    ;;
-  *)
-    PAM_MODDIR="/usr/lib"
-    ;;
-esac
-AC_SUBST(PAM_MODDIR)
+
+AC_CHECK_LIB([pam], [pam_start], [AC_SUBST([LIBPAM], ["-lpam"])])
+
+AC_SEARCH_LIBS([pam_modutil_drop_priv], ["pam"], [AC_DEFINE([HAVE_PAM_MODUTIL_DROP_PRIV], [1], [pam_modutil_drop_priv()])])
+AC_SEARCH_LIBS([pam_modutil_getpwnam], ["pam"], [AC_DEFINE([HAVE_PAM_MODUTIL_GETPWNAM], [1], [pam_modutil_getpwnam()])])
+
+AC_SUBST(PAM_MODDIR, "\$(exec_prefix)/lib/security")
+AC_ARG_WITH(pam-dir,
+  AS_HELP_STRING([--with-pam-dir=DIR],[Where to install PAM module [[PREFIX/lib/security]]]),
+            [case "${withval}" in
+            /*) PAM_MODDIR="${withval}";;
+            ./*|../*) AC_MSG_ERROR(Bad value for --with-pam-dir);;
+            *)  PAM_MODDIR="\$(exec_prefix)/lib/${withval}";;
+            esac])
+AC_MSG_NOTICE([PAM installation path $PAM_MODDIR])
+
+pam_misc_found=no;
+AC_CHECK_HEADERS([security/pam_misc.h], [pam_misc_found=yes], [],
+  [#include <sys/types.h>
+   #include <security/pam_appl.h>])
+AC_CHECK_HEADERS([pam/pam_misc.h], [pam_misc_found=yes], [],
+  [#include <sys/types.h>
+   #include <security/pam_appl.h>])
+if test "x$pam_misc_found" = "xyes" ; then
+  AC_DEFINE(PAM_CONV_FUNC,misc_conv,Have misc_conv)
+  AC_CHECK_LIB([pam_misc], [misc_conv], [AC_SUBST([LIBPAMMISC], ["-lpam_misc"])])
+else
+  AC_CHECK_HEADERS([security/openpam.h],
+  [AC_DEFINE(PAM_CONV_FUNC,openpam_ttyconv,Have openpam_ttyconv)
+  ],
+  [AC_MSG_ERROR([[Cannot find neither misc_conv nor openpam_ttyconv]])
+  ],
+  [#include <sys/types.h>
+   #include <security/pam_appl.h>])
+fi
 
 # Checks for header files.
 
@@ -72,13 +100,22 @@ AC_C_CONST
 
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
-AC_TYPE_SIGNAL
+AC_CACHE_CHECK([return type of signal handlers],[ac_cv_type_signal],[AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([#include <sys/types.h>
+#include <signal.h>
+],
+		 [return *(signal (0, 0)) (0) == 1;])],
+		   [ac_cv_type_signal=int],
+		   [ac_cv_type_signal=void])])
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_TYPE_UID_T
 
 
 # LYNX documentation generation
 AC_ARG_ENABLE(lynx,
-          AC_HELP_STRING([--disable-lynx], [Turn off lynx usage for documentation generation]),
+          AS_HELP_STRING([--disable-lynx],[Turn off lynx usage for documentation generation]),
 [case "${enableval}" in
   yes) lynx=yes ;;
   no)  lynx=no ;;
@@ -97,7 +134,7 @@ AM_CONDITIONAL([USE_LYNX], [test "x$lynx" = xyes])
 
 # XMLTOMAN manpage generation
 AC_ARG_ENABLE(xmltoman,
-        AC_HELP_STRING([--disable-xmltoman], [Disable rebuilding of man pages with xmltoman]),
+        AS_HELP_STRING([--disable-xmltoman],[Disable rebuilding of man pages with xmltoman]),
 [case "${enableval}" in
   yes) xmltoman=yes ;;
   no)  xmltoman=no ;;
@@ -115,8 +152,8 @@ fi
 
 AM_CONDITIONAL([USE_XMLTOMAN], [test "x$xmltoman" = xyes])
 
-AC_ARG_ENABLE(compat05, 
-              AC_HELP_STRING([--enable-compat05], [Enable compatibility with pam_dotfile <= 0.5]),
+AC_ARG_ENABLE(compat05,
+              AS_HELP_STRING([--enable-compat05],[Enable compatibility with pam_dotfile <= 0.5]),
 [case "${enableval}" in
   yes) compat05=yes ;;
   no)  compat05=no ;;

@@ -21,7 +21,7 @@ if [ "x$1" = "xam" ] ; then
     set -ex
     automake -a -c
     ./config.status
-else 
+else
     set -ex
 
     make maintainer-clean || true
@@ -37,4 +37,3 @@ else
 
     ./configure "$@"
 fi
-

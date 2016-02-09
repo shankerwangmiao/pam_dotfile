@@ -5,19 +5,20 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
   (at your option) any later version.
-  
+
   pam_dotfile is distributed in the hope that it will be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with pam_dotfile; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
   USA
 ***/
-        
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <pwd.h>
 #include <unistd.h>
@@ -30,21 +31,15 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
-#define PAM_SM_AUTH
-
-#include <security/pam_modules.h>
-#include <security/_pam_macros.h>
-
 #include "md5.h"
 #include "md5util.h"
-#include "common.h"
 #include "log.h"
 
 #define HELPERTOOL SBINDIR"/pam-dotfile-helper"
 
 #ifndef PAM_FAIL_DELAY
 #define pam_fail_delay(x,y) 0
-#endif 
+#endif
 
 #define PAM_DOTFILE_DELAY 3000000
 
@@ -55,7 +50,7 @@ static int _fork_authentication(context_t *c, const char *username, const char *
     pid_t pid;
     int r = PAM_SYSTEM_ERR, p[2];
     struct sigaction sa_save, sa;
-    
+
     if (pipe(p) < 0) {
         logmsg(c, LOG_ERR, "pipe(): %s", strerror(errno));
 	return PAM_SYSTEM_ERR;
@@ -64,39 +59,39 @@ static int _fork_authentication(context_t *c, const char *username, const char *
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = sigchld;
     sa.sa_flags = SA_RESTART;
-        
+
     if (sigaction(SIGCHLD, &sa, &sa_save) < 0) {
         logmsg(c, LOG_ERR, "sigaction(): %s", strerror(errno));
         goto finish;
     }
-        
+
     if ((pid = fork()) < 0) {
         logmsg(c, LOG_ERR, "fork(): %s", strerror(errno));
         goto finish;
     } else if (pid == 0) {
 	char * const args[] = {
             HELPERTOOL,
-            x_strdup(c->service), 
+            x_strdup(c->service),
 	    x_strdup(username),
-            c->opt_debug ? "debug" : "nodebug", 
+            c->opt_debug ? "debug" : "nodebug",
 	    c->opt_no_warn ? "no_warn" : "warn",
             c->opt_stat_only_home ? "stat_only_home" : "stat_all",
 #ifdef COMPAT05
             c->opt_nocompat05 ? "nocompat05" : "compat05",
 #else
-            "nocompat05", 
+            "nocompat05",
 #endif
             NULL
         };
         char * envp[] = { NULL };
 
 	close(p[1]);
-	
+
         if (p[0] != 0 && dup2(p[0], 0) != 0) {
             logmsg(c, LOG_ERR, "dup2(): %s", strerror(errno));
             exit(2);
         }
-        
+
 	close(1);
         close(2);
 
@@ -114,16 +109,16 @@ static int _fork_authentication(context_t *c, const char *username, const char *
         }
 
 	execve(HELPERTOOL, args, envp);
-        
+
         logmsg(c, LOG_ERR, "execve(): %s", strerror(errno));
-        
+
 	exit(100);
     } else if (pid > 0) {
         FILE *f;
         int r2;
-        
+
         close(p[0]);
-        
+
         if (!(f = fdopen(p[1], "w"))) {
             logmsg(c, LOG_ERR, "fdopen() failed.");
             goto finish;
@@ -134,7 +129,7 @@ static int _fork_authentication(context_t *c, const char *username, const char *
 
         fclose(f);
         close(p[1]);
-        
+
         if (waitpid(pid, &r2, 0) < 0) {
             logmsg(c, LOG_ERR, "waitpid(): %s", strerror(errno));
             goto finish;
@@ -154,19 +149,19 @@ static int _fork_authentication(context_t *c, const char *username, const char *
     }
 
 finish:
-    
+
     if (sigaction(SIGCHLD, &sa_save, NULL) < 0) {
         logmsg(c, LOG_ERR, "sigaction()#2: %s", strerror(errno));
         r = PAM_SYSTEM_ERR;
     }
 
-    
+
     return r;
 }
 
 static int _authentication(context_t *c, const char *username, const char *password) {
     int b;
-    
+
     if (!username || !*username) {
         logmsg(c, LOG_WARNING, "Authentication failure: null username supplied");
         return PAM_AUTH_ERR;
@@ -176,14 +171,14 @@ static int _authentication(context_t *c, const char *username, const char *passw
         logmsg(c, LOG_WARNING, "Authentication failure: null password supplied");
         return PAM_AUTH_ERR;
     }
-    
+
     b = geteuid() != 0;
 
     if (b && c->opt_fork < 0) {
         logmsg(c, LOG_ERR, "Option <nofork> set and uid != 0, failing");
         return PAM_SYSTEM_ERR;
     }
-    
+
     if (c->opt_fork > 0)
         b = 1;
 
@@ -229,7 +224,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *ph, int flags, int argc, const 
     int r;
     context_t c;
     const struct pam_conv *pc;
-    static struct pam_message m[1] = { { msg_style: PAM_PROMPT_ECHO_OFF, msg : "Dotfile Password: " } };
+    static struct pam_message m[1] = { { .msg_style =  PAM_PROMPT_ECHO_OFF, .msg = "Dotfile Password: " } };
     const static struct pam_message* pm[] = { &m[0] };
     struct pam_response *a;
 
@@ -260,7 +255,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *ph, int flags, int argc, const 
             logmsg(&c, LOG_ERR, "pam_get_item(*, PAM_AUTHTOK, *): %s", pam_strerror(ph, r));
             return r;
         }
-    
+
     if (c.opt_use_first_pass && !password) {
         logmsg(&c, LOG_DEBUG, "No password passed in PAM_AUTHTOK.");
         return PAM_CRED_INSUFFICIENT;
@@ -282,17 +277,17 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *ph, int flags, int argc, const 
             return PAM_AUTH_ERR;
         }
     }
-    
+
     if ((r = pam_get_item(ph, PAM_CONV, (const void**) &pc)) != PAM_SUCCESS) {
         logmsg(&c, LOG_ERR, "pam_get_item(*, PAM_CONV, *): %s", pam_strerror(ph, r));
         return r;
     }
-    
+
     if (!pc || !pc->conv) {
         logmsg(&c, LOG_ERR, "conv() function invalid");
         return PAM_CONV_ERR;
-    } 
-    
+    }
+
     if ((r = pc->conv(1, pm, &a, pc->appdata_ptr)) != PAM_SUCCESS) {
         logmsg(&c, LOG_ERR, "conv(): %s", pam_strerror(ph, r));
         return r;
@@ -302,7 +297,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *ph, int flags, int argc, const 
         logmsg(&c, LOG_ERR, "Got no password.");
         return PAM_CRED_INSUFFICIENT;
     }
-            
+
     if ((r = pam_set_item(ph, PAM_AUTHTOK, x_strdup(a->resp))) != PAM_SUCCESS)
         return r;
 
@@ -313,10 +308,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *ph, int flags, int argc, const 
         logmsg(&c, LOG_DEBUG, "Authentication with PAM_AUTHTOK failed (%i): %s", r, pam_strerror(ph, r));
         return r;
     }
-        
+
     logmsg(&c, LOG_DEBUG, "Authentication failed with user password");
     pam_fail_delay(ph, PAM_DOTFILE_DELAY);
-    return PAM_AUTH_ERR;            
+    return PAM_AUTH_ERR;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv) {

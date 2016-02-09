@@ -5,12 +5,12 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
   (at your option) any later version.
-  
+
   pam_dotfile is distributed in the hope that it will be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with pam_dotfile; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -18,12 +18,28 @@
 ***/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_SECURITY_PAM_APPL_H
 #include <security/pam_appl.h>
+#endif
+#ifdef HAVE_SECURITY_PAM_MISC_H
 #include <security/pam_misc.h>
+#endif
+#ifdef HAVE_SECURITY_OPENPAM_H
+#include <security/openpam.h>
+#endif
+#ifdef HAVE_PAM_PAM_MISC_H
+#include <pam/pam_misc.h>
+#endif
+
 
 int main(int argc, char*argv[]) {
-    static struct pam_conv pc = { misc_conv, NULL };
+    static struct pam_conv pc = { PAM_CONV_FUNC, NULL };
     pam_handle_t *ph = NULL;
     int r, ret;
     char *username, *procname, *service;
@@ -45,7 +61,7 @@ int main(int argc, char*argv[]) {
         printf("Trying to authenticate <%s> for service <%s>.\n", username, service);
     else
         printf("Trying to authenticate for service <%s>.\n", service);
-    
+
     if ((r = pam_start(service, username, &pc, &ph)) != PAM_SUCCESS) {
         fprintf(stderr, "Failure starting pam: %s\n", pam_strerror(ph, r));
         return 1;

@@ -24,17 +24,22 @@ module_LTLIBRARIES = pam_dotfile.la
 pam_dotfile_la_SOURCES = pam_dotfile.c md5.c md5util.c md5.h md5util.h log.c log.h common.c common.h
 pam_dotfile_la_LDFLAGS = -module -avoid-version
 pam_dotfile_la_CFLAGS = $(AM_CFLAGS)
+pam_dotfile_la_LIBADD = @LIBPAM@
 
 sbin_PROGRAMS = pam-dotfile-helper
 bin_PROGRAMS = pam-dotfile-gen pamtest
 
-pam_dotfile_gen_SOURCES = pam-dotfile-gen.c md5.c md5.h md5util.c md5util.h 
+pam_dotfile_gen_SOURCES = pam-dotfile-gen.c md5.c md5.h md5util.c md5util.h
 pam_dotfile_gen_CFLAGS = $(AM_CFLAGS)
+pam_dotfile_gen_LDADD = @LIBPAM@
 
-pam_dotfile_helper_SOURCES = pam-dotfile-helper.c md5.c md5.h md5util.c md5util.h common.c common.h log.c log.h 
+pam_dotfile_helper_SOURCES = pam-dotfile-helper.c md5.c md5.h md5util.c md5util.h common.c common.h log.c log.h
 pam_dotfile_helper_CFLAGS = $(AM_CFLAGS)
+pam_dotfile_gen_LDADD = @LIBPAM@ @LIBPAMMISC@
 
 pamtest_SOURCES = pamtest.c
+pamtest_CFLAGS = $(AM_CFLAGS)
+pamtest_LDADD = @LIBPAM@ @LIBPAMMISC@
 
 install-exec-hook:
 	chown root $(DESTDIR)$(sbindir)/pam-dotfile-helper

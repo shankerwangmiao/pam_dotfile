@@ -24,8 +24,8 @@ noinst_DATA = README
 
 README:
 	rm -f README
-	$(MAKE) -C doc README
-	ln -s doc/README README
+	$(MAKE) -C doc all
+	-cp doc/README README
 
 homepage:
 	test -d $$HOME/homepage/lennart
